@@ -2,185 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Amazonian Paysliper</title>
-
-<style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-}
-
-.app {
-  max-width:420px;
-  margin:auto;
-  padding:12px;
-}
-
-.header {
-  text-align:center;
-  color:white;
-}
-
-.panel {
-  background:white;
-  padding:15px;
-  border-radius:16px;
-}
-
-input, select {
-  width:100%;
-  padding:14px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
-
-button {
-  width:100%;
-  padding:16px;
-  margin-top:10px;
-  border:none;
-  border-radius:12px;
-  background:#2563eb;
-  color:white;
-  font-weight:bold;
-}
-
-.card {
-  background:#f1f5f9;
-  padding:12px;
-  border-radius:10px;
-  margin:6px 0;
-}
-
-.green { border-left:5px solid #16a34a; }
-.red { border-left:5px solid #dc2626; }
-.blue { border-left:5px solid #2563eb; }
-.orange { border-left:5px solid #ea580c; }
-.purple { border-left:5px solid #7c3aed; }
-
-.result { margin-top:10px; }
-</style>
-</head>
-
-<body>
-
-<div class="app">
-  <div class="header">
-    <h2>💰 Amazonian Paysliper</h2>
-    <p style="font-size:12px;">Made by Anas • Allow £3–£7 difference</p>
-  </div>
-
-  <div class="panel">
-
-    <input id="hours" type="number" placeholder="Hours worked">
-    <input id="rate" type="number" value="14.6" placeholder="Rate">
-
-    <select id="shift">
-      <option value="night">Night</option>
-      <option value="day">Day</option>
-    </select>
-
-    <input id="pension" type="number" value="0" placeholder="Pension (£ weekly)">
-    <input id="benefits" type="number" placeholder="Benefits (£ weekly optional)">
-
-    <button onclick="calculate()">Calculate</button>
-
-    <div id="result" class="result"></div>
-
-  </div>
-</div>
-
-<script>
-function calculate(){
-
-let h = parseFloat(hours.value);
-if(!h){ alert("Enter hours"); return; }
-
-let r = parseFloat(rate.value);
-let shift = document.getElementById("shift").value;
-let pension = parseFloat(pension.value)||0;
-let benefits = benefits.value ? parseFloat(benefits.value) : 0;
-
-/* HOURS SPLIT */
-let c1 = Math.min(h,40);
-let c2 = Math.max(0, Math.min(h-40,10));
-let c3 = Math.max(0, h-50);
-
-/* PAY */
-let pay1 = c1*r;
-let pay2 = c2*(r*1.5);
-let pay3 = c3*(r*2);
-
-let base = pay1 + pay2 + pay3;
-
-/* NIGHT */
-let nightH = (shift==="night") ? h*0.16 : 0;
-let nightPay = nightH*r;
-
-/* OT PREMIUM */
-let pot = (pay2+pay3)*0.09219178082;
-
-/* TOTAL */
-let weeklyGross = base + nightPay + pot;
-let annualGross = weeklyGross*52;
-
-let annualAfterPension = (weeklyGross - pension)*52;
-let annualAfterBenefits = (weeklyGross - pension - benefits)*52;
-
-/* TAX */
-function taxCalc(s){
-let PA=12570;
-let tax = Math.max(0, s-PA)*0.20;
-let ni = Math.max(0, s-PA)*0.08;
-return {tax,ni,net:s-tax-ni};
-}
-
-let res = taxCalc(annualAfterPension);
-
-/* UI */
-function box(title,val,cls){
-return `<div class="card ${cls}"><b>${title}</b><br>£${val}</div>`;
-}
-
-let html = "";
-
-html += box("Weekly Gross", weeklyGross.toFixed(2), "blue");
-html += box("Annual Gross", annualGross.toFixed(2), "blue");
-
-html += box("Pension (Weekly)", pension.toFixed(2), "orange");
-html += box("Annual After Pension", annualAfterPension.toFixed(2), "purple");
-
-if(benefits>0){
-html += box("Benefits (Weekly)", benefits.toFixed(2), "orange");
-html += box("After Benefits", annualAfterBenefits.toFixed(2), "purple");
-}
-
-html += box("Tax (Annual)", res.tax.toFixed(2), "red");
-html += box("NI (Annual)", res.ni.toFixed(2), "red");
-
-html += box("Annual Net", res.net.toFixed(2), "green");
-html += box("Weekly Net", (res.net/52).toFixed(2), "green");
-
-result.innerHTML = html;
-}
-
-/* ENTER KEY */
-window.addEventListener("keydown", e=>{
-if(e.key==="Enter") calculate();
-});
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Amazonian Paysliper</title>
+
 <style>
 :root{
   --bg:#0f172a;
@@ -191,33 +15,55 @@ if(e.key==="Enter") calculate();
   --red:#dc2626;
   --blue:#2563eb;
 }
+
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system, BlinkMacSystemFont, Arial, sans-serif;background:var(--bg);}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);}
 
 .app{max-width:430px;margin:0 auto;padding:12px 12px 80px;}
 
-.header{background:transparent;color:#fff;text-align:center;margin:6px 0 10px;}
+.header{color:#fff;text-align:center;margin:6px 0 10px;}
 .header h1{font-size:20px;margin:4px 0;}
 .header .sub{font-size:12px;color:#cbd5f5}
 
-.panel{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 10px 25px rgba(0,0,0,.25)}
+.panel{background:var(--card);border-radius:16px;padding:14px;}
 
 .field{display:flex;flex-direction:column;margin:6px 0}
 .label{font-size:12px;color:var(--muted);margin-bottom:4px}
-.input, select{width:100%;padding:14px;border-radius:12px;border:1px solid #e5e7eb;font-size:16px}
+.input, select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #e5e7eb;
+  font-size:16px;
+}
 
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
-.switch{display:flex;align-items:center;justify-content:space-between;margin:8px 0}
-
 .cta-wrap{position:fixed;left:0;right:0;bottom:0;padding:10px;background:linear-gradient(180deg,rgba(15,23,42,0),rgba(15,23,42,1));}
 .cta{max-width:430px;margin:0 auto}
-button{width:100%;padding:16px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:16px;font-weight:700}
+button{
+  width:100%;
+  padding:16px;
+  border-radius:14px;
+  border:none;
+  background:var(--primary);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+}
 
 .result{margin-top:12px}
-.card{background:#f8fafc;border-radius:14px;padding:12px;margin:8px 0}
+
+.card{
+  background:#f8fafc;
+  border-radius:14px;
+  padding:12px;
+  margin:8px 0;
+}
+
 .card b{display:block;font-size:12px;color:#334155;margin-bottom:4px}
 .card .val{font-size:18px;font-weight:800}
+
 .card.green{border-left:6px solid var(--green)}
 .card.red{border-left:6px solid var(--red)}
 .card.blue{border-left:6px solid var(--blue)}
@@ -227,6 +73,7 @@ button{width:100%;padding:16px;border-radius:14px;border:none;background:var(--p
 .footer{color:#94a3b8;text-align:center;font-size:11px;margin-top:10px}
 </style>
 </head>
+
 <body>
 
 <div class="app">
@@ -237,11 +84,13 @@ button{width:100%;padding:16px;border-radius:14px;border:none;background:var(--p
   </div>
 
   <div class="panel">
+
     <div class="row">
       <div class="field">
         <div class="label">Hours</div>
         <input class="input" type="number" id="hours" placeholder="e.g. 50">
       </div>
+
       <div class="field">
         <div class="label">Rate (£)</div>
         <input class="input" type="number" id="rate" value="14.6">
@@ -256,15 +105,17 @@ button{width:100%;padding:16px;border-radius:14px;border:none;background:var(--p
           <option value="day">Day</option>
         </select>
       </div>
+
       <div class="field">
-        <div class="label">Pension (£/wk)</div>
-        <input class="input" type="number" id="pension" value="0">
+        <div class="label">Pension (£/wk, optional)</div>
+        <!-- FIXED: removed value="0" -->
+        <input class="input" type="number" id="pension" placeholder="Leave blank if none">
       </div>
     </div>
 
     <div class="field">
-      <div class="label">Benefits (£/wk) (optional)</div>
-      <input class="input" type="number" id="benefits" placeholder="leave empty if none">
+      <div class="label">Benefits (£/wk, optional)</div>
+      <input class="input" type="number" id="benefits" placeholder="Leave blank if none">
     </div>
 
     <div id="result" class="result"></div>
@@ -283,11 +134,15 @@ button{width:100%;padding:16px;border-radius:14px;border:none;background:var(--p
 function calculate(){
   const h = parseFloat(document.getElementById('hours').value);
   if(!h){ alert('Enter hours'); return; }
+
   const r = parseFloat(document.getElementById('rate').value);
   const shift = document.getElementById('shift').value;
-  const pension = parseFloat(document.getElementById('pension').value)||0;
-  const bVal = document.getElementById('benefits').value;
-  const benefits = bVal===""?0:parseFloat(bVal);
+
+  const pensionVal = document.getElementById('pension').value;
+  const pension = pensionVal === "" ? 0 : parseFloat(pensionVal);
+
+  const benefitsVal = document.getElementById('benefits').value;
+  const benefits = benefitsVal === "" ? 0 : parseFloat(benefitsVal);
 
   const c1 = Math.min(h,40);
   const c2 = Math.max(0, Math.min(h-40,10));
@@ -296,6 +151,7 @@ function calculate(){
   const pay1 = c1*r;
   const pay2 = c2*(r*1.5);
   const pay3 = c3*(r*2);
+
   const baseTotal = pay1 + pay2 + pay3;
 
   const nightH = (shift==='night') ? h*0.16 : 0;
@@ -310,68 +166,41 @@ function calculate(){
   const annualAfterBenefits = (weeklyGross - pension - benefits) * 52;
 
   function calcTaxNI(salary){
-    const PA=12570, BRL=37700, HRL=125140;
-    const BR=0.20, HR=0.40, AR=0.45;
-    const NI_PT=12570, NI_UT=50270;
-    const NI_MAIN=0.08, NI_UP=0.02;
-
-    let taxable=Math.max(0,salary-PA);
-    let tax=0;
-    tax += Math.min(taxable,BRL)*BR;
-    if(taxable>BRL){
-      let hb=Math.min(taxable-BRL,HRL-PA-BRL);
-      tax+=hb*HR;
-    }
-    if(taxable>(HRL-PA)){
-      let ab=taxable-(HRL-PA);
-      tax+=ab*AR;
-    }
-
-    let ni=0;
-    if(salary>NI_PT && salary<=NI_UT){
-      ni=(salary-NI_PT)*NI_MAIN;
-    } else if(salary>NI_UT){
-      let main=(NI_UT-NI_PT)*NI_MAIN;
-      let upper=(salary-NI_UT)*NI_UP;
-      ni=main+upper;
-    }
-
-    let net=salary-tax-ni;
-    return {tax,ni,net};
+    const PA=12570;
+    const taxable=Math.max(0,salary-PA);
+    const tax = taxable * 0.20;
+    const ni = taxable * 0.08;
+    return {tax, ni, net: salary-tax-ni};
   }
 
   const res = calcTaxNI(annualAfterPension);
-  const weeklyNet = res.net/52;
 
-  const card=(t,v,c)=>`<div class="card ${c}"><b>${t}</b><div class="val">${v}</div></div>`;
+  const card = (t,v,c)=>
+    `<div class="card ${c}"><b>${t}</b><div class="val">${v}</div></div>`;
 
-  let html='';
-  html += `<div class="grid">`;
-  html += card('Weekly Net',`£${weeklyNet.toFixed(2)}`,'green');
-  html += card('Weekly Gross',`£${weeklyGross.toFixed(2)}`,'blue');
-  html += `</div>`;
+  let html = '';
 
-  html += `<div class="grid">`;
-  html += card('Annual Net',`£${res.net.toFixed(2)}`,'green');
-  html += card('Annual Gross',`£${annualGross.toFixed(2)}`,'blue');
-  html += `</div>`;
+  html += `<div class="grid">
+    ${card('Weekly Gross',`£${weeklyGross.toFixed(2)}`,'blue')}
+    ${card('Annual Gross',`£${annualGross.toFixed(2)}`,'blue')}
+  </div>`;
 
-  html += `<div class="grid">`;
-  html += card('Tax (Annual)',`£${res.tax.toFixed(2)}`,'red');
-  html += card('NI (Annual)',`£${res.ni.toFixed(2)}`,'red');
-  html += `</div>`;
+  html += `<div class="grid">
+    ${card('Annual Net',`£${res.net.toFixed(2)}`,'green')}
+    ${card('Weekly Net',`£${(res.net/52).toFixed(2)}`,'green')}
+  </div>`;
 
-  html += `<div class="card"><b>Hours Breakdown</b>
-    <div>Basic: ${c1}</div>
-    <div>1.5x: ${c2}</div>
-    <div>2x: ${c3}</div>
-    <div>Night: ${nightH.toFixed(2)}</div>
+  html += `<div class="grid">
+    ${card('Tax (Annual)',`£${res.tax.toFixed(2)}`,'red')}
+    ${card('NI (Annual)',`£${res.ni.toFixed(2)}`,'red')}
   </div>`;
 
   document.getElementById('result').innerHTML = html;
 }
 
-window.addEventListener('keydown', e=>{ if(e.key==='Enter') calculate(); });
+window.addEventListener('keydown', e=>{
+  if(e.key==="Enter") calculate();
+});
 </script>
 
 </body>
