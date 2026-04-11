@@ -135,11 +135,6 @@ button{
       </div>
     </div>
 
-    <div class="field">
-      <div class="label">Benefits (£/wk)</div>
-      <input class="input" type="number" id="benefits" placeholder="Optional">
-    </div>
-
     <div id="result" class="result"></div>
   </div>
 
@@ -176,9 +171,6 @@ function calculate(){
   const pensionVal = document.getElementById('pension').value;
   const pension = pensionVal === "" ? 0 : parseFloat(pensionVal);
 
-  const benefitsVal = document.getElementById('benefits').value;
-  const benefits = benefitsVal === "" ? 0 : parseFloat(benefitsVal);
-
   const c1 = Math.min(h,40);
   const c2 = Math.max(0, Math.min(h-40,10));
   const c3 = Math.max(0, h-50);
@@ -192,7 +184,7 @@ function calculate(){
 
   const weeklyGross = base + nightPay + pot;
 
-  const weeklyDeductions = pension + benefits;
+  const weeklyDeductions = pension;
 
   const annualAfter = (weeklyGross - weeklyDeductions) * 52;
 
@@ -221,7 +213,7 @@ function calculate(){
 
   html += `<div class="grid">
     ${card('Weekly Tax', `£${weeklyTax.toFixed(2)}`, 'red')}
-    ${card('Weekly Deductions', `£${weeklyDeductions.toFixed(2)}`, 'orange')}
+    ${card('Weekly Pension', `£${weeklyDeductions.toFixed(2)}`, 'orange')}
   </div>`;
 
   document.getElementById('result').innerHTML = html;
