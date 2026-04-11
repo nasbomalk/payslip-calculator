@@ -106,6 +106,7 @@ button {
 </select>
 
 <input type="number" id="pension" value="0" placeholder="Pension (£)">
+<input type="number" id="benefits" placeholder="Benefits (£ optional)">
 
 <button onclick="calculate()">Calculate</button>
 
@@ -122,6 +123,7 @@ if(!h){alert('Enter hours');return;}
 let r=parseFloat(rate.value);
 let shiftVal=shift.value;
 let pensionVal=parseFloat(pension.value)||0;
+let benefitsVal=parseFloat(document.getElementById('benefits').value)||0;
 
 let c1=Math.min(h,40);
 let c2=Math.max(0,Math.min(h-40,10));
@@ -141,6 +143,7 @@ let pot=(pay2+pay3)*0.09219178082;
 let weeklyGross=base+nightPay+pot;
 let annualGross=weeklyGross*52;
 let annualAfterPension=(weeklyGross-pensionVal)*52;
+let annualAfterBenefits=(weeklyGross-pensionVal-benefitsVal)*52;
 
 function taxCalc(s){
 let PA=12570;
@@ -150,6 +153,7 @@ return {tax,ni,net:s-tax-ni};
 }
 
 let res=taxCalc(annualAfterPension);
+let resBenefits=taxCalc(annualAfterBenefits);
 
 let html='';
 html+=`<div class='card green'><b>Weekly Net</b><br>£${(res.net/52).toFixed(2)}</div>`;
@@ -158,6 +162,9 @@ html+=`<div class='card green'><b>Annual Net</b><br>£${res.net.toFixed(2)}</div
 html+=`<div class='card blue'><b>Annual Gross</b><br>£${annualGross.toFixed(2)}</div>`;
 html+=`<div class='card red'><b>Tax</b><br>£${res.tax.toFixed(2)}</div>`;
 html+=`<div class='card red'><b>NI</b><br>£${res.ni.toFixed(2)}</div>`;
+
+html+=`<div class='card blue'><b>After Benefits Annual</b><br>£${annualAfterBenefits.toFixed(2)}</div>`;
+html+=`<div class='card green'><b>Net After Benefits</b><br>£${resBenefits.net.toFixed(2)}</div>`;
 
 result.innerHTML=html;
 }
