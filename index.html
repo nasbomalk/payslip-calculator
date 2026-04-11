@@ -2,6 +2,183 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazonian Paysliper</title>
+
+<style>
+body {
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+}
+
+.app {
+  max-width:420px;
+  margin:auto;
+  padding:12px;
+}
+
+.header {
+  text-align:center;
+  color:white;
+}
+
+.panel {
+  background:white;
+  padding:15px;
+  border-radius:16px;
+}
+
+input, select {
+  width:100%;
+  padding:14px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+button {
+  width:100%;
+  padding:16px;
+  margin-top:10px;
+  border:none;
+  border-radius:12px;
+  background:#2563eb;
+  color:white;
+  font-weight:bold;
+}
+
+.card {
+  background:#f1f5f9;
+  padding:12px;
+  border-radius:10px;
+  margin:6px 0;
+}
+
+.green { border-left:5px solid #16a34a; }
+.red { border-left:5px solid #dc2626; }
+.blue { border-left:5px solid #2563eb; }
+.orange { border-left:5px solid #ea580c; }
+.purple { border-left:5px solid #7c3aed; }
+
+.result { margin-top:10px; }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <div class="header">
+    <h2>💰 Amazonian Paysliper</h2>
+    <p style="font-size:12px;">Made by Anas • Allow £3–£7 difference</p>
+  </div>
+
+  <div class="panel">
+
+    <input id="hours" type="number" placeholder="Hours worked">
+    <input id="rate" type="number" value="14.6" placeholder="Rate">
+
+    <select id="shift">
+      <option value="night">Night</option>
+      <option value="day">Day</option>
+    </select>
+
+    <input id="pension" type="number" value="0" placeholder="Pension (£ weekly)">
+    <input id="benefits" type="number" placeholder="Benefits (£ weekly optional)">
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div id="result" class="result"></div>
+
+  </div>
+</div>
+
+<script>
+function calculate(){
+
+let h = parseFloat(hours.value);
+if(!h){ alert("Enter hours"); return; }
+
+let r = parseFloat(rate.value);
+let shift = document.getElementById("shift").value;
+let pension = parseFloat(pension.value)||0;
+let benefits = benefits.value ? parseFloat(benefits.value) : 0;
+
+/* HOURS SPLIT */
+let c1 = Math.min(h,40);
+let c2 = Math.max(0, Math.min(h-40,10));
+let c3 = Math.max(0, h-50);
+
+/* PAY */
+let pay1 = c1*r;
+let pay2 = c2*(r*1.5);
+let pay3 = c3*(r*2);
+
+let base = pay1 + pay2 + pay3;
+
+/* NIGHT */
+let nightH = (shift==="night") ? h*0.16 : 0;
+let nightPay = nightH*r;
+
+/* OT PREMIUM */
+let pot = (pay2+pay3)*0.09219178082;
+
+/* TOTAL */
+let weeklyGross = base + nightPay + pot;
+let annualGross = weeklyGross*52;
+
+let annualAfterPension = (weeklyGross - pension)*52;
+let annualAfterBenefits = (weeklyGross - pension - benefits)*52;
+
+/* TAX */
+function taxCalc(s){
+let PA=12570;
+let tax = Math.max(0, s-PA)*0.20;
+let ni = Math.max(0, s-PA)*0.08;
+return {tax,ni,net:s-tax-ni};
+}
+
+let res = taxCalc(annualAfterPension);
+
+/* UI */
+function box(title,val,cls){
+return `<div class="card ${cls}"><b>${title}</b><br>£${val}</div>`;
+}
+
+let html = "";
+
+html += box("Weekly Gross", weeklyGross.toFixed(2), "blue");
+html += box("Annual Gross", annualGross.toFixed(2), "blue");
+
+html += box("Pension (Weekly)", pension.toFixed(2), "orange");
+html += box("Annual After Pension", annualAfterPension.toFixed(2), "purple");
+
+if(benefits>0){
+html += box("Benefits (Weekly)", benefits.toFixed(2), "orange");
+html += box("After Benefits", annualAfterBenefits.toFixed(2), "purple");
+}
+
+html += box("Tax (Annual)", res.tax.toFixed(2), "red");
+html += box("NI (Annual)", res.ni.toFixed(2), "red");
+
+html += box("Annual Net", res.net.toFixed(2), "green");
+html += box("Weekly Net", (res.net/52).toFixed(2), "green");
+
+result.innerHTML = html;
+}
+
+/* ENTER KEY */
+window.addEventListener("keydown", e=>{
+if(e.key==="Enter") calculate();
+});
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Amazonian Paysliper</title>
 <style>
