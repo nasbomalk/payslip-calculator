@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Amazonian Paysliper</title>
+<style>
+body {
+  font-family: Arial;
+  padding:10px;
+  background:linear-gradient(135deg,#1e293b,#0f172a);
+}
+
+.box {
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  max-width:500px;
+  margin:auto;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+h1 { text-align:center; font-size:22px; }
+.subtitle { text-align:center; font-size:13px; margin-bottom:10px; }
+
+input, select, button {
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+button {
+  background:#2563eb;
+  color:white;
+  font-weight:bold;
+  border:none;
+}
+
+.result { margin-top:15px; }
+
+.card {
+  background:#f8fafc;
+  border-radius:14px;
+  padding:12px;
+  margin:8px 0;
+  border-left:6px solid #2563eb;
+}
+
+.card.green { border-left-color:#16a34a; }
+.card.red { border-left-color:#dc2626; }
+.card.purple { border-left-color:#7c3aed; }
+.card.orange { border-left-color:#ea580c; }
+
+.card h3 { font-size:14px; margin:0; }
+.card p { font-size:15px; margin:4px 0 0; }
+
+.note { text-align:center; font-size:12px; margin-top:10px; }
+
+/* Mobile spacing tweaks */
+@media (max-width:480px){
+  h1 { font-size:20px; }
+  input,select,button { font-size:16px; padding:14px; }
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h1>Amazonian Paysliper</h1>
+<div class="subtitle">Allow £3–£7 difference margin</div>
+
+<input type="number" id="hours" placeholder="Hours worked">
+<input type="number" id="rate" value="14.6" placeholder="Hourly rate">
+
+<select id="shift">
+<option value="night">Night shift</option>
+<option value="day">Day shift</option>
+</select>
+
+<input type="number" id="pension" value="0" placeholder="Pension weekly (£)">
+<input type="number" id="benefits" placeholder="Benefits weekly (£)">
+
+<button onclick="calculate()">Calculate</button>
+
+<div class="result" id="result"></div>
+
+<div class="note">Estimate only</div>
+</div>
+
+<script>
+function calculate(){
+let h = parseFloat(document.getElementById('hours').value);
+if(!h){ alert('Enter hours'); return; }
+
+let r = parseFloat(document.getElementById('rate').value);
+let shift = document.getElementById('shift').value;
+let pension = parseFloat(document.getElementById('pension').value)||0;
+let benefitsInput = document.getElementById('benefits').value;
+let benefits = benefitsInput === "" ? 0 : parseFloat(benefitsInput);
+
+let c1 = Math.min(h,40);
+let c2 = Math.max(0, Math.min(h-40,10));
+let c3 = Math.max(0, h-50);
+
+let pay1 = c1*r;
+let pay2 = c2*(r*1.5);
+let pay3 = c3*(r*2);
+
+let baseTotal = pay1 + pay2 + pay3;
+
+let nightHours = (shift==="night") ? h*0.16 : 0;
+let nightPay = nightHours*r;
+
+let overtimePay = pay2 + pay3;
+let pot = overtimePay * 0.09219178082;
+
+let weeklyGross = baseTotal + nightPay + pot;
+
+let weeklyAfterPension = weeklyGross - pension;
+let weeklyAfterBenefits = weeklyAfterPension - benefits;
+
+let annualGross = weeklyGross*52;
+let annualAfterPension = weeklyAfterPension*52;
+let annualAfterBenefits = weeklyAfterBenefits*52;
+
+function calcTaxNI(salary){
+const PA=12570, BRL=37700, HRL=125140;
+const BR=0.20, HR=0.40, AR=0.45;
+const NI_PT=12570, NI_UT=50270;
+const NI_MAIN=0.08, NI_UP=0.02;
+
+let taxable=Math.max(0,salary-PA);
+let tax=0;
+
+tax += Math.min(taxable,BRL)*BR;
+if(taxable>BRL){
+let hb=Math.min(taxable-BRL,HRL-PA-BRL);
+ tax+=hb*HR;
+}
+if(taxable>(HRL-PA)){
+let ab=taxable-(HRL-PA);
+ tax+=ab*AR;
+}
+
+let ni=0;
+if(salary>NI_PT && salary<=NI_UT){
+ ni=(salary-NI_PT)*NI_MAIN;
+}else if(salary>NI_UT){
+ let main=(NI_UT-NI_PT)*NI_MAIN;
+ let upper=(salary-NI_UT)*NI_UP;
+ ni=main+upper;
+}
+
+let net=salary-tax-ni;
+return {tax,ni,net};
+}
+
+let result1 = calcTaxNI(annualAfterPension);
+let weeklyNet = result1.net/52;
+
+function card(title,value,color){
+return `<div class='card ${color}'><h3>${title}</h3><p>${value}</p></div>`;
+}
+
+let html='';
+html += card('Weekly Net',`£${weeklyNet.toFixed(2)}`,'green');
+html += card('Weekly Gross',`£${weeklyGross.toFixed(2)}`,'blue');
+html += card('Annual Net',`£${result1.net.toFixed(2)}`,'green');
+html += card('Annual Gross',`£${annualGross.toFixed(2)}`,'blue');
+html += card('Tax (Annual)',`£${result1.tax.toFixed(2)}`,'red');
+html += card('NI (Annual)',`£${result1.ni.toFixed(2)}`,'red');
+
+html += `<div class='card'><h3>Hours</h3>
+<p>Basic: ${c1}</p>
+<p>1.5x: ${c2}</p>
+<p>2x: ${c3}</p>
+<p>Night: ${nightHours.toFixed(2)}</p>
+</div>`;
+
+document.getElementById('result').innerHTML = html;
+}
+
+window.addEventListener('keydown', e=>{ if(e.key==='Enter') calculate(); });
+</script>
+
+</body>
+</html>
