@@ -14,6 +14,7 @@
   --green:#16a34a;
   --red:#dc2626;
   --blue:#2563eb;
+  --orange:#ea580c;
 }
 
 *{box-sizing:border-box}
@@ -25,7 +26,7 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);}
 .header h1{font-size:20px;margin:4px 0;}
 .header .sub{font-size:12px;color:#cbd5f5}
 
-.panel{background:var(--card);border-radius:16px;padding:14px;}
+.panel{background:#fff;border-radius:16px;padding:14px;}
 
 .field{display:flex;flex-direction:column;margin:6px 0}
 .label{font-size:12px;color:var(--muted);margin-bottom:4px}
@@ -69,6 +70,7 @@ button{
 .card.green{border-left:6px solid var(--green)}
 .card.red{border-left:6px solid var(--red)}
 .card.blue{border-left:6px solid var(--blue)}
+.card.orange{border-left:6px solid var(--orange)}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
@@ -157,9 +159,10 @@ function calculate(){
   const pot = (c2*r*1.5 + c3*r*2) * 0.09219178082;
 
   const weeklyGross = base + nightPay + pot;
-  const annualGross = weeklyGross * 52;
 
-  const annualAfterDeductions = (weeklyGross - pension - benefits) * 52;
+  const weeklyDeductions = pension + benefits;
+
+  const annualAfter = (weeklyGross - weeklyDeductions) * 52;
 
   function taxCalc(s){
     const PA=12570;
@@ -169,26 +172,25 @@ function calculate(){
     return {tax,ni,net:s-tax-ni};
   }
 
-  const res = taxCalc(annualAfterDeductions);
+  const res = taxCalc(annualAfter);
+
+  const weeklyNet = res.net / 52;
+
+  const weeklyTax = res.tax / 52;
 
   const card = (t,v,c)=>
     `<div class="card ${c}"><b>${t}</b><div class="val">${v}</div></div>`;
 
-  let html='';
+  let html = '';
 
   html += `<div class="grid">
-    ${card('Weekly Gross',`£${weeklyGross.toFixed(2)}`,'blue')}
-    ${card('Annual Gross',`£${annualGross.toFixed(2)}`,'blue')}
+    ${card('Weekly Gross', `£${weeklyGross.toFixed(2)}`, 'blue')}
+    ${card('Weekly Net', `£${weeklyNet.toFixed(2)}`, 'green')}
   </div>`;
 
   html += `<div class="grid">
-    ${card('Annual Net',`£${res.net.toFixed(2)}`,'green')}
-    ${card('Weekly Net',`£${(res.net/52).toFixed(2)}`,'green')}
-  </div>`;
-
-  html += `<div class="grid">
-    ${card('Tax (Annual)',`£${res.tax.toFixed(2)}`,'red')}
-    ${card('NI (Annual)',`£${res.ni.toFixed(2)}`,'red')}
+    ${card('Weekly Tax', `£${weeklyTax.toFixed(2)}`, 'red')}
+    ${card('Weekly Deductions', `£${weeklyDeductions.toFixed(2)}`, 'orange')}
   </div>`;
 
   document.getElementById('result').innerHTML = html;
