@@ -28,6 +28,16 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);}
 
 .panel{background:#fff;border-radius:16px;padding:14px;}
 
+.notice{
+  background:#fef3c7;
+  border-left:6px solid #f59e0b;
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
+  font-size:13px;
+  font-weight:600;
+}
+
 .field{display:flex;flex-direction:column;margin:6px 0}
 .label{font-size:12px;color:var(--muted);margin-bottom:4px}
 
@@ -89,6 +99,15 @@ button{
 
   <div class="panel">
 
+    <div class="notice">
+      You have to thank Anas to get the results 🙏
+    </div>
+
+    <div class="field">
+      <div class="label">Message</div>
+      <input class="input" type="text" id="msg" placeholder="Type: thanks / thank you / cheers">
+    </div>
+
     <div class="row">
       <div class="field">
         <div class="label">Hours</div>
@@ -135,6 +154,19 @@ button{
 
 <script>
 function calculate(){
+
+  const msg = document.getElementById('msg').value.toLowerCase().trim();
+
+  const allowed = msg.includes("thanks") ||
+                  msg.includes("thank you") ||
+                  msg.includes("cheers");
+
+  if(!allowed){
+    document.getElementById('result').innerHTML =
+      `<div class="card red"><b>No Thanks</b><div class="val">No thanks, no results</div></div>`;
+    return;
+  }
+
   const h = parseFloat(document.getElementById('hours').value);
   if(!h){ alert('Enter hours'); return; }
 
@@ -175,7 +207,6 @@ function calculate(){
   const res = taxCalc(annualAfter);
 
   const weeklyNet = res.net / 52;
-
   const weeklyTax = res.tax / 52;
 
   const card = (t,v,c)=>
