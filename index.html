@@ -29,6 +29,7 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);}
 
 .field{display:flex;flex-direction:column;margin:6px 0}
 .label{font-size:12px;color:var(--muted);margin-bottom:4px}
+
 .input, select{
   width:100%;
   padding:14px;
@@ -41,6 +42,7 @@ body{margin:0;font-family:Arial,sans-serif;background:var(--bg);}
 
 .cta-wrap{position:fixed;left:0;right:0;bottom:0;padding:10px;background:linear-gradient(180deg,rgba(15,23,42,0),rgba(15,23,42,1));}
 .cta{max-width:430px;margin:0 auto}
+
 button{
   width:100%;
   padding:16px;
@@ -88,12 +90,12 @@ button{
     <div class="row">
       <div class="field">
         <div class="label">Hours</div>
-        <input class="input" type="number" id="hours" placeholder="e.g. 50">
+        <input class="input" type="number" id="hours" placeholder="Hours worked">
       </div>
 
       <div class="field">
         <div class="label">Rate (£)</div>
-        <input class="input" type="number" id="rate" value="14.6">
+        <input class="input" type="number" id="rate" placeholder="Hourly rate">
       </div>
     </div>
 
@@ -107,15 +109,14 @@ button{
       </div>
 
       <div class="field">
-        <div class="label">Pension (£/wk, optional)</div>
-        <!-- FIXED: removed value="0" -->
-        <input class="input" type="number" id="pension" placeholder="Leave blank if none">
+        <div class="label">Pension (£/wk)</div>
+        <input class="input" type="number" id="pension" placeholder="Optional">
       </div>
     </div>
 
     <div class="field">
-      <div class="label">Benefits (£/wk, optional)</div>
-      <input class="input" type="number" id="benefits" placeholder="Leave blank if none">
+      <div class="label">Benefits (£/wk)</div>
+      <input class="input" type="number" id="benefits" placeholder="Optional">
     </div>
 
     <div id="result" class="result"></div>
@@ -148,37 +149,32 @@ function calculate(){
   const c2 = Math.max(0, Math.min(h-40,10));
   const c3 = Math.max(0, h-50);
 
-  const pay1 = c1*r;
-  const pay2 = c2*(r*1.5);
-  const pay3 = c3*(r*2);
-
-  const baseTotal = pay1 + pay2 + pay3;
+  const base = (c1*r) + (c2*r*1.5) + (c3*r*2);
 
   const nightH = (shift==='night') ? h*0.16 : 0;
   const nightPay = nightH*r;
 
-  const pot = (pay2 + pay3) * 0.09219178082;
+  const pot = (c2*r*1.5 + c3*r*2) * 0.09219178082;
 
-  const weeklyGross = baseTotal + nightPay + pot;
+  const weeklyGross = base + nightPay + pot;
   const annualGross = weeklyGross * 52;
 
-  const annualAfterPension = (weeklyGross - pension) * 52;
-  const annualAfterBenefits = (weeklyGross - pension - benefits) * 52;
+  const annualAfterDeductions = (weeklyGross - pension - benefits) * 52;
 
-  function calcTaxNI(salary){
+  function taxCalc(s){
     const PA=12570;
-    const taxable=Math.max(0,salary-PA);
-    const tax = taxable * 0.20;
-    const ni = taxable * 0.08;
-    return {tax, ni, net: salary-tax-ni};
+    const taxable=Math.max(0,s-PA);
+    const tax=taxable*0.20;
+    const ni=taxable*0.08;
+    return {tax,ni,net:s-tax-ni};
   }
 
-  const res = calcTaxNI(annualAfterPension);
+  const res = taxCalc(annualAfterDeductions);
 
   const card = (t,v,c)=>
     `<div class="card ${c}"><b>${t}</b><div class="val">${v}</div></div>`;
 
-  let html = '';
+  let html='';
 
   html += `<div class="grid">
     ${card('Weekly Gross',`£${weeklyGross.toFixed(2)}`,'blue')}
