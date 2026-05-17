@@ -63,6 +63,7 @@ button{
   color:#fff;
   font-size:16px;
   font-weight:700;
+  cursor:pointer;
 }
 
 .result{margin-top:12px}
@@ -85,10 +86,52 @@ button{
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 
 .footer{color:#94a3b8;text-align:center;font-size:11px;margin-top:10px}
+
+/* 🔐 LOGIN OVERLAY */
+#loginBox{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,0.95);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:9999;
+}
+
+.login-card{
+  background:white;
+  width:100%;
+  max-width:360px;
+  padding:16px;
+  border-radius:16px;
+}
+
+.login-card h2{
+  margin:0 0 10px;
+  font-size:18px;
+}
+
+.login-card p{
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:10px;
+}
 </style>
 </head>
 
 <body>
+
+<!-- 🔐 LOGIN SCREEN -->
+<div id="loginBox">
+  <div class="login-card">
+    <h2>Enter Email to Continue</h2>
+    <p>You must register before using the calculator.</p>
+
+    <input class="input" type="email" id="email" placeholder="Enter your email">
+    <button style="margin-top:10px" onclick="register()">Register</button>
+  </div>
+</div>
 
 <div class="app">
   <div class="header">
@@ -148,6 +191,28 @@ button{
 </div>
 
 <script>
+
+/* 🔐 REGISTER SYSTEM */
+function register(){
+  const email = document.getElementById("email").value.trim();
+
+  if(!email || !email.includes("@")){
+    alert("Enter a valid email");
+    return;
+  }
+
+  localStorage.setItem("registeredEmail", email);
+  document.getElementById("loginBox").style.display = "none";
+}
+
+window.onload = function(){
+  const saved = localStorage.getItem("registeredEmail");
+  if(saved){
+    document.getElementById("loginBox").style.display = "none";
+  }
+}
+
+/* 💰 YOUR ORIGINAL CALCULATOR */
 function calculate(){
 
   const msg = document.getElementById('msg').value.toLowerCase().trim();
